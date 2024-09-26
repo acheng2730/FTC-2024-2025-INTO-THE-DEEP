@@ -1,16 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 // A more accurate implementation of Mecanum drive, using target angle/power as inputs instead of direct joystick values
 @TeleOp(name = "robotCentric-method2")
 public class LinearTeleOp extends BaseLinearOpMode {
-    double curPoseY = 0, curPoseX = 0; // Current position on field in inches
-    ElapsedTime driveTime = new ElapsedTime();
-    double prevTime = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -71,26 +65,5 @@ public class LinearTeleOp extends BaseLinearOpMode {
             backRight.setPower(backRightPow);
 
         }
-    }
-
-    public void updatePosition() { // uses encoders to determine position on the field
-        // super inaccurate, most likely not going to use - also should be an auton only thing
-        // MUST READ: https://ftc-tech-toolbox.vercel.app/docs/odo/Mecanum
-        double angle = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-        // apply mecanum kinematic model (with wheel velocities [ticks per sec])
-        double xV = (topLeft.getVelocity() + topRight.getVelocity() + backLeft.getVelocity() + backRight.getVelocity()) * 0.482;
-
-        double yV = (-topLeft.getVelocity() + topRight.getVelocity() + backLeft.getVelocity() - backRight.getVelocity()) * 0.482;
-
-        // rotate the vector
-        double nx = (xV * Math.cos(angle)) - (yV * Math.sin(angle));
-        double nY = (xV * Math.sin(angle)) + (yV * Math.cos(angle));
-        xV = nx;
-        yV = nY;
-
-        // integrate velocity over time
-        curPoseY += (yV * (driveTime.seconds() - prevTime)) / conversionFactor; // <-- Tick to inch conversion factor
-        curPoseX += (xV * (driveTime.seconds() - prevTime)) / conversionFactor;
-        prevTime = driveTime.seconds();
     }
 }
