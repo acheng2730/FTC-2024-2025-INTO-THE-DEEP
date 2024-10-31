@@ -64,10 +64,9 @@ public abstract class BaseLinearOpMode extends LinearOpMode {
         double yV = (-topLeft.getVelocity() + topRight.getVelocity() + backLeft.getVelocity() - backRight.getVelocity()) * 0.482;
 
         // rotate the vector
-        double nx = (xV * Math.cos(angle)) - (yV * Math.sin(angle));
-        double nY = (xV * Math.sin(angle)) + (yV * Math.cos(angle));
-        xV = nx;
-        yV = nY;
+        double nx = (xV*Math.cos(angle))-(yV*Math.sin(angle));
+        double nY = (xV*Math.sin(angle))+(yV*Math.cos(angle));
+        xV = nx; yV = nY;
 
         // integrate velocity over time
         curPoseY += (yV * (driveTime.seconds() - prevTime)) / conversionFactor; // <-- Tick to inch conversion factor

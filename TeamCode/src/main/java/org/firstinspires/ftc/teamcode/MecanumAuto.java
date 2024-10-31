@@ -7,7 +7,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 @Autonomous(name = "Mecanum Drive to Position", group = "Autonomous")
 public class MecanumAuto extends BaseLinearOpMode {
-    private static final double kP = 0.1, kI = 0.0, kD = 0.1; // Tweak these values
+    private static final double kP = 1, kI = 0, kD = .25; // Tweak these values
     private PIDController pidX, pidY, pidHeading;
     private double currentHeading;
 
@@ -22,7 +22,8 @@ public class MecanumAuto extends BaseLinearOpMode {
         waitForStart();
 
         // Move to (x, y) = (2, 2) at heading = 90 degrees
-        moveToPosition(2, 2, 90);
+        //moveToPosition(2, 2, 90);
+        moveTest(500);
     }
 
     public void moveToPosition(double deltaX, double deltaY, double targetHeading) {
@@ -70,5 +71,21 @@ public class MecanumAuto extends BaseLinearOpMode {
         topRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
+    }
+
+    public void moveTest(double target) { // single motor PID; tuning test
+        pidX.reset();
+        while (opModeIsActive()) {
+            double output = pidX.update(target, topLeft.getCurrentPosition());
+            topLeft.setPower(output);
+
+            if (Math.abs(target - topLeft.getCurrentPosition()) < 2) {
+                break;
+            }
+
+            telemetry.addData("Target: ", target);
+            telemetry.addData("Current: ", topLeft.getCurrentPosition());
+            telemetry.update();
+        }
     }
 }
