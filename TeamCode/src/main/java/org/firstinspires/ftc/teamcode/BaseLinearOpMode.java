@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -18,10 +19,15 @@ import java.util.List;
 public abstract class BaseLinearOpMode extends LinearOpMode {
     public IMU imu;
     DcMotorEx topLeft, topRight, backLeft, backRight;
+    DcMotorEx viper_slide;
+    DcMotorEx bilda, bilda1;
     double conversionFactor = 92.4; // NeveRest 40 motor ticks/inch
-    double curPoseY = 0, curPoseX = 0; // Current position on field in inches
+    double curPoseY = 0, curPoseX = 0; double curTheta = 0; // Current position on field in inches
     ElapsedTime driveTime = new ElapsedTime();
     double prevTime = 0;
+
+    Servo one;
+    Servo two;
 
     public void initHardware() throws InterruptedException {
         // Hubs
@@ -35,6 +41,11 @@ public abstract class BaseLinearOpMode extends LinearOpMode {
         topRight = hardwareMap.get(DcMotorEx.class, "topRight");
         backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
         backRight = hardwareMap.get(DcMotorEx.class, "backRight");
+        viper_slide = hardwareMap.get(DcMotorEx.class, "viper");
+
+        one = hardwareMap.get(Servo.class, "servo");
+        two = hardwareMap.get(Servo.class, "servo2");
+        two.setDirection(Servo.Direction.REVERSE);
 
         topLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE); // For mecanum drive
@@ -43,15 +54,38 @@ public abstract class BaseLinearOpMode extends LinearOpMode {
         topRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        viper_slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         topLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         topRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        viper_slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         imu = hardwareMap.get(IMU.class, "imu");
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
+        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
         imu.initialize(parameters);
+    }
+
+    public double getRobotTheta() {
+        curTheta = (int) -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+        return remap(curTheta, -180, 180, 0, 360);
+    }
+
+    public double getRobotY() {
+        int topLeftEncoderPos = topLeft.getCurrentPosition();
+        int topRightEncoderPos = -topRight.getCurrentPosition();
+        int backLeftEncoderPos = -backLeft.getCurrentPosition();
+        int backRightEncoderPos = backRight.getCurrentPosition();
+        return curPoseY = (double) (backLeftEncoderPos + topLeftEncoderPos + backRightEncoderPos + topRightEncoderPos) / 4;
+    }
+
+    public double getRobotX() {
+        int topLeftEncoderPos = topLeft.getCurrentPosition();
+        int topRightEncoderPos = -topRight.getCurrentPosition();
+        int backLeftEncoderPos = -backLeft.getCurrentPosition();
+        int backRightEncoderPos = backRight.getCurrentPosition();
+        return curPoseX = (double) (-backLeftEncoderPos - topLeftEncoderPos + backRightEncoderPos + topRightEncoderPos) / 4;
     }
 
     public void updatePosition() { // uses encoders to determine position on the field
@@ -69,10 +103,15 @@ public abstract class BaseLinearOpMode extends LinearOpMode {
         xV = nx; yV = nY;
 
         // integrate velocity over time
-        curPoseY += (yV * (driveTime.seconds() - prevTime)) / conversionFactor; // <-- Tick to inch conversion factor
-        curPoseX += (xV * (driveTime.seconds() - prevTime)) / conversionFactor;
+        //curPoseY += (yV * (driveTime.seconds() - prevTime)) / conversionFactor; // <-- Tick to inch conversion factor
+        //curPoseX += (xV * (driveTime.seconds() - prevTime)) / conversionFactor;
         prevTime = driveTime.seconds();
     }
+
+    public static double remap(double value, double low, double high, double newLow, double newHigh) {
+        return newLow + (newHigh - newLow) * ((value - low) / (high - low));
+    }
+
 
     @Override
     public abstract void runOpMode() throws InterruptedException;

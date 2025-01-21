@@ -11,20 +11,20 @@
 
 // Custom definitions may go here
 buildscript {
-    repositories{
+    repositories {
         mavenCentral()
         maven {
-            url = 'https://www.matthewo.tech/maven/'
+            url "https://repo.dairy.foundation/snapshots"
         }
     }
     dependencies {
-        classpath 'org.team11260:fast-load-plugin:0.1.2'
+        classpath "dev.frozenmilk.sinister.sloth:Load:0.0.2"
     }
 }
 // Include common definitions from above.
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
-apply plugin: 'org.team11260.fast-load-plugin'
+apply plugin: 'dev.frozenmilk.sinister.sloth.Load'
 
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
@@ -37,13 +37,13 @@ android {
     }
 }
 
-repositories {
-    maven {
-        url = 'https://www.matthewo.tech/maven/'
-    }
-}
 
 dependencies {
     implementation project(':FtcRobotController')
-    implementation 'org.team11260:fast-load:0.1.2'
+    implementation "dev.frozenmilk.sinister:Sloth:0.0.1"
+}
+
+repositories {
+    maven { url "https://repo.dairy.foundation/releases" }
+    maven { url "https://repo.dairy.foundation/snapshots" }
 }

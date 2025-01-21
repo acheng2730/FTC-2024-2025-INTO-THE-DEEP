@@ -10,6 +10,9 @@ public class LinearTeleOp extends BaseLinearOpMode {
     public void runOpMode() throws InterruptedException {
         initHardware();
 
+        PIDController viper = new PIDController(.004,0.004,0);
+        int viperSetpoint = 0;
+
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
@@ -17,17 +20,23 @@ public class LinearTeleOp extends BaseLinearOpMode {
 
         while (opModeIsActive()) {
             int topLeftEncoderPos = topLeft.getCurrentPosition();
-            int topRightEncoderPos = topRight.getCurrentPosition();
-            int backLeftEncoderPos = backLeft.getCurrentPosition();
+            int topRightEncoderPos = -topRight.getCurrentPosition();
+            int backLeftEncoderPos = -backLeft.getCurrentPosition();
             int backRightEncoderPos = backRight.getCurrentPosition();
+            int viperEncoderPos = -viper_slide.getCurrentPosition();
 
-            updatePosition();
+            //updatePosition();
+            getRobotTheta();
+            getRobotX();
+            getRobotY();
 
-            telemetry.addData("Position: ", curPoseX + " , " + curPoseY);
+            telemetry.addData("Position: ", curPoseX + " , " + curPoseY + " , " + curTheta);
             telemetry.addData("topLeftPos: ", topLeftEncoderPos);
             telemetry.addData("topRightPos: ", topRightEncoderPos);
             telemetry.addData("backLeftPos: ", backLeftEncoderPos);
             telemetry.addData("backRightPos: ", backRightEncoderPos);
+            telemetry.addData("viperPos: ", viperEncoderPos);
+            telemetry.addData("viper setpoint: ", viperSetpoint);
 
             telemetry.update();
 
@@ -51,6 +60,7 @@ public class LinearTeleOp extends BaseLinearOpMode {
             double backLeftPow = power * sin / max + turn;
             double topRightPow = power * sin / max - turn;
             double backRightPow = power * cos / max - turn;
+            double viperPower = 0;
 
             if ((power + Math.abs(turn)) > 1) { // Avoid power clipping
                 topLeftPow /= power + turn;
@@ -59,10 +69,32 @@ public class LinearTeleOp extends BaseLinearOpMode {
                 backRightPow /= power + turn;
             }
 
+            if (gamepad1.left_bumper) {
+                viperSetpoint -= 20;
+            }
+            if (gamepad1.right_bumper) {
+                viperSetpoint += 20;
+            }
+
+            if (viperSetpoint <=-50) {
+                viperSetpoint = -50;
+            }
+            if (viperSetpoint >= 2725) {
+                viperSetpoint = 2725;
+            }
+
+            if (gamepad1.a) {
+                one.setPosition(one.getPosition()+10);
+                two.setPosition(two.getPosition()+10);
+            }
+
+            viperPower = viper.calculate(viperSetpoint, viperEncoderPos);
+
             topLeft.setPower(topLeftPow);
             backLeft.setPower(backLeftPow);
             topRight.setPower(topRightPow);
             backRight.setPower(backRightPow);
+            viper_slide.setPower(viperPower);
 
         }
     }

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
 public class PIDController {
     private final double kp;
     private final double ki;
@@ -16,7 +18,7 @@ public class PIDController {
         this.lastTime = System.currentTimeMillis();
     }
 
-    public double update(double setpoint, double actualPosition) {
+    public double calculate(double setpoint, double actualPosition) {
         long currentTime = System.currentTimeMillis();
         double elapsedTime = (currentTime - lastTime) / 1000.0; // Convert ms to s
         lastTime = currentTime;
