@@ -24,6 +24,7 @@ public class LinearTeleOp extends BaseLinearOpMode {
             int backLeftEncoderPos = -backLeft.getCurrentPosition();
             int backRightEncoderPos = backRight.getCurrentPosition();
             int viperEncoderPos = -viper_slide.getCurrentPosition();
+            int scoopPos = scoop.getCurrentPosition();
 
             //updatePosition();
             getRobotTheta();
@@ -82,20 +83,26 @@ public class LinearTeleOp extends BaseLinearOpMode {
             if (viperSetpoint >= 2725) {
                 viperSetpoint = 2725;
             }
+            viperPower = viper.calculate(viperSetpoint, viperEncoderPos);
 
             if (gamepad1.a) {
-                one.setPosition(one.getPosition()+10);
-                two.setPosition(two.getPosition()+10);
+                servoLeft.setPosition(servoLeft.getPosition()+10);
+                servoRight.setPosition(servoRight.getPosition()+10);
             }
 
-            viperPower = viper.calculate(viperSetpoint, viperEncoderPos);
+            double scoopPower = gamepad1.right_trigger-gamepad1.left_trigger;
+            if ((scoop.getCurrentPosition() >= scoopPos && power > 0) ||
+                    (scoop.getCurrentPosition() <= scoopPos-225 && power < 0)) {
+                power = 0; // Stop the motor if it tries to move beyond the limits
+            }
+
 
             topLeft.setPower(topLeftPow);
             backLeft.setPower(backLeftPow);
             topRight.setPower(topRightPow);
             backRight.setPower(backRightPow);
             viper_slide.setPower(viperPower);
-
+            scoop.setPower(.35*power);
         }
     }
 }

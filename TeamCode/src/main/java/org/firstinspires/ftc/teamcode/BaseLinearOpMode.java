@@ -20,14 +20,14 @@ public abstract class BaseLinearOpMode extends LinearOpMode {
     public IMU imu;
     DcMotorEx topLeft, topRight, backLeft, backRight;
     DcMotorEx viper_slide;
-    DcMotorEx bilda, bilda1;
+    DcMotorEx scoop;
     double conversionFactor = 92.4; // NeveRest 40 motor ticks/inch
     double curPoseY = 0, curPoseX = 0; double curTheta = 0; // Current position on field in inches
     ElapsedTime driveTime = new ElapsedTime();
     double prevTime = 0;
 
-    Servo one;
-    Servo two;
+    Servo servoLeft;
+    Servo servoRight;
 
     public void initHardware() throws InterruptedException {
         // Hubs
@@ -42,10 +42,11 @@ public abstract class BaseLinearOpMode extends LinearOpMode {
         backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
         backRight = hardwareMap.get(DcMotorEx.class, "backRight");
         viper_slide = hardwareMap.get(DcMotorEx.class, "viper");
+        scoop = hardwareMap.get(DcMotorEx.class, "scoop");
 
-        one = hardwareMap.get(Servo.class, "servo");
-        two = hardwareMap.get(Servo.class, "servo2");
-        two.setDirection(Servo.Direction.REVERSE);
+        servoLeft = hardwareMap.get(Servo.class, "servoLeft");
+        servoRight = hardwareMap.get(Servo.class, "servoRight");
+        servoLeft.setDirection(Servo.Direction.REVERSE);
 
         topLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE); // For mecanum drive
