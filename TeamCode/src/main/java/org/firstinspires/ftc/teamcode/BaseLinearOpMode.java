@@ -28,6 +28,7 @@ public abstract class BaseLinearOpMode extends LinearOpMode {
 
     Servo servoLeft;
     Servo servoRight;
+    Servo wrist;
 
     public void initHardware() throws InterruptedException {
         // Hubs
@@ -47,6 +48,7 @@ public abstract class BaseLinearOpMode extends LinearOpMode {
         servoLeft = hardwareMap.get(Servo.class, "servoLeft");
         servoRight = hardwareMap.get(Servo.class, "servoRight");
         servoLeft.setDirection(Servo.Direction.REVERSE);
+        wrist = hardwareMap.get(Servo.class, "wrist");
 
         topLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE); // For mecanum drive

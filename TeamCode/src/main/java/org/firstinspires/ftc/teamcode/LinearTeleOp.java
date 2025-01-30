@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 // A more accurate implementation of Mecanum drive, using target angle/power as inputs instead of direct joystick values
-@TeleOp(name = "robotCentric-method2")
+@TeleOp(name = "LinearTeleOp")
 public class LinearTeleOp extends BaseLinearOpMode {
 
     @Override

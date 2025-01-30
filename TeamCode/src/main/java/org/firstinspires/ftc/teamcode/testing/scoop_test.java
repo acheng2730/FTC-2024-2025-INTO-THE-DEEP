@@ -17,13 +17,13 @@ public class scoop_test extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            double power = gamepad1.right_trigger-gamepad1.left_trigger;
+            double power = gamepad1.right_trigger - gamepad1.left_trigger;
             if ((scoop.getCurrentPosition() >= curPos && power > 0) ||
-                    (scoop.getCurrentPosition() <= curPos-225 && power < 0)) {
+                    (scoop.getCurrentPosition() <= curPos - 225 && power < 0)) {
                 power = 0; // Stop the motor if it tries to move beyond the limits
             }
 
-            scoop.setPower(.35*power);
+            scoop.setPower(.35 * power);
 
             telemetry.addData("curPos: ", curPos);
             telemetry.addData("position: ", scoop.getCurrentPosition());
