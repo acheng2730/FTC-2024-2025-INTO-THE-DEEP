@@ -12,27 +12,23 @@ public class LinearTeleOp extends BaseLinearOpMode {
         servoLeft.setPosition(0.45);
         wrist.setPosition(0);
 
-        PIDController viper = new PIDController(.004,0.004,0);
+        PIDController viper = new PIDController(.004, 0.004, 0);
         int viperSetpoint = 0;
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
-        int scoopPos = scoop.getCurrentPosition();
         waitForStart();
 
         while (opModeIsActive()) {
+            updateRobotPosition();
+
             int topLeftEncoderPos = topLeft.getCurrentPosition();
             int topRightEncoderPos = -topRight.getCurrentPosition();
             int backLeftEncoderPos = -backLeft.getCurrentPosition();
             int backRightEncoderPos = backRight.getCurrentPosition();
             int viperEncoderPos = -viper_slide.getCurrentPosition();
 
-
-            //updatePosition();
-            getRobotTheta();
-            getRobotX();
-            getRobotY();
 
             telemetry.addData("Position: ", curPoseX + " , " + curPoseY + " , " + curTheta);
             telemetry.addData("topLeftPos: ", topLeftEncoderPos);
@@ -68,7 +64,7 @@ public class LinearTeleOp extends BaseLinearOpMode {
             double backLeftPow = power * sin / max + turn;
             double topRightPow = power * sin / max - turn;
             double backRightPow = power * cos / max - turn;
-            double viperPower = 0;
+            double viperPower;
 
             if ((power + Math.abs(turn)) > 1) { // Avoid power clipping
                 topLeftPow /= power + turn;
@@ -84,7 +80,7 @@ public class LinearTeleOp extends BaseLinearOpMode {
                 viperSetpoint += 20;
             }
 
-            if (viperSetpoint <=-50) {
+            if (viperSetpoint <= -50) {
                 viperSetpoint = -50;
             }
             if (viperSetpoint >= 2725) {
@@ -93,33 +89,33 @@ public class LinearTeleOp extends BaseLinearOpMode {
             viperPower = viper.calculate(viperSetpoint, viperEncoderPos);
 
             if (gamepad1.a) {
-                servoLeft.setPosition(servoLeft.getPosition()+.02);
-                servoRight.setPosition(servoRight.getPosition()+.02);
+                servoLeft.setPosition(servoLeft.getPosition() + .02);
+                servoRight.setPosition(servoRight.getPosition() + .02);
                 sleep(10);
             }
             if (gamepad1.b) {
-                servoLeft.setPosition(servoLeft.getPosition()-.02);
-                servoRight.setPosition(servoRight.getPosition()-.02);
+                servoLeft.setPosition(servoLeft.getPosition() - .02);
+                servoRight.setPosition(servoRight.getPosition() - .02);
                 sleep(10);
             }
 
             if (gamepad1.x) {
-                wrist.setPosition(wrist.getPosition()+.02);
+                wrist.setPosition(wrist.getPosition() + .02);
                 sleep(10);
             }
             if (gamepad1.y) {
-                wrist.setPosition(wrist.getPosition()-.02);
+                wrist.setPosition(wrist.getPosition() - .02);
                 sleep(10);
             }
 
-            double scoopPower = gamepad1.right_trigger-gamepad1.left_trigger;
+            double scoopPower = gamepad1.right_trigger - gamepad1.left_trigger;
 
             topLeft.setPower(topLeftPow);
             backLeft.setPower(backLeftPow);
             topRight.setPower(topRightPow);
             backRight.setPower(backRightPow);
             viper_slide.setPower(viperPower);
-            scoop.setPower(.35*scoopPower);
+            scoop.setPower(.35 * scoopPower);
         }
     }
 }

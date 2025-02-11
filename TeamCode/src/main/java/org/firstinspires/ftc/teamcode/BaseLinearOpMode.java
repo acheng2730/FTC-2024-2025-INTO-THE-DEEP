@@ -18,17 +18,22 @@ import java.util.List;
 // abstract classes and inheritance
 public abstract class BaseLinearOpMode extends LinearOpMode {
     public IMU imu;
+    public Servo servoLeft;
+    public Servo servoRight;
     DcMotorEx topLeft, topRight, backLeft, backRight;
     DcMotorEx viper_slide;
     DcMotorEx scoop;
     double conversionFactor = 92.4; // NeveRest 40 motor ticks/inch
-    double curPoseY = 0, curPoseX = 0; double curTheta = 0; // Current position on field in inches
+    double curPoseY = 0, curPoseX = 0;
+    double curTheta = 0; double encoderTheta = 0; // Current position on field in inches
     ElapsedTime driveTime = new ElapsedTime();
     double prevTime = 0;
-
-    public Servo servoLeft;
-    public Servo servoRight;
     Servo wrist;
+
+    //TODO FIX THESE NUMBERS
+    private static final double WHEEL_RADIUS = 2.0; // Wheel radius in inches
+    private static final double LX = 7.0; // Half of the wheelbase along the x-axis in inches
+    private static final double LY = 7.0; // Half of the wheelbase along the y-axis in inches
 
     public void initHardware() throws InterruptedException {
         // Hubs
@@ -72,51 +77,60 @@ public abstract class BaseLinearOpMode extends LinearOpMode {
         imu.initialize(parameters);
     }
 
-    public double getRobotTheta() {
-        curTheta = (int) -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-        return remap(curTheta, -180, 180, 0, 360);
+    public double getRobotX() {
+        return curPoseX;
     }
 
     public double getRobotY() {
-        int topLeftEncoderPos = topLeft.getCurrentPosition();
-        int topRightEncoderPos = -topRight.getCurrentPosition();
-        int backLeftEncoderPos = -backLeft.getCurrentPosition();
-        int backRightEncoderPos = backRight.getCurrentPosition();
-        return curPoseY = (double) (backLeftEncoderPos + topLeftEncoderPos + backRightEncoderPos + topRightEncoderPos) / 4;
+        return curPoseY;
     }
 
-    public double getRobotX() {
-        int topLeftEncoderPos = topLeft.getCurrentPosition();
-        int topRightEncoderPos = -topRight.getCurrentPosition();
-        int backLeftEncoderPos = -backLeft.getCurrentPosition();
-        int backRightEncoderPos = backRight.getCurrentPosition();
-        return curPoseX = (double) (-backLeftEncoderPos - topLeftEncoderPos + backRightEncoderPos + topRightEncoderPos) / 4;
+    public double getRobotTheta() {
+        return curTheta;
     }
 
-    public void updatePosition() { // uses encoders to determine position on the field
-        // super inaccurate, most likely not going to use - also should be an auton only thing
-        // MUST READ: https://ftc-tech-toolbox.vercel.app/docs/odo/Mecanum
-        double angle = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-        // apply mecanum kinematic model (with wheel velocities [ticks per sec])
-        double xV = (topLeft.getVelocity() + topRight.getVelocity() + backLeft.getVelocity() + backRight.getVelocity()) * 0.482;
+    // Method to update the robot's position and heading
+    public void updateRobotPosition() {
+        double currentTime = driveTime.seconds();
+        double deltaTime = currentTime - prevTime;
+        prevTime = currentTime;
 
-        double yV = (-topLeft.getVelocity() + topRight.getVelocity() + backLeft.getVelocity() - backRight.getVelocity()) * 0.482;
+        // Get encoder values (in inches)
+        double w1 = topLeft.getCurrentPosition() / conversionFactor;
+        double w2 = topRight.getCurrentPosition() / conversionFactor;
+        double w3 = backLeft.getCurrentPosition() / conversionFactor;
+        double w4 = backRight.getCurrentPosition() / conversionFactor;
 
-        // rotate the vector
-        double nx = (xV*Math.cos(angle))-(yV*Math.sin(angle));
-        double nY = (xV*Math.sin(angle))+(yV*Math.cos(angle));
-        xV = nx; yV = nY;
+        // Calculate robot velocities using mecanum wheel kinematics
+        double vx = (WHEEL_RADIUS / 4) * (w1 + w2 + w3 + w4);
+        double vy = (WHEEL_RADIUS / 4) * (-w1 + w2 + w3 - w4);
+        double omega = (WHEEL_RADIUS / (4 * (LX + LY))) * (-w1 + w2 - w3 + w4);
 
-        // integrate velocity over time
-        //curPoseY += (yV * (driveTime.seconds() - prevTime)) / conversionFactor; // <-- Tick to inch conversion factor
-        //curPoseX += (xV * (driveTime.seconds() - prevTime)) / conversionFactor;
-        prevTime = driveTime.seconds();
+        encoderTheta = omega*deltaTime;
+        encoderTheta = normalizeAngle(encoderTheta);
+
+        // Update the robot's heading using the IMU
+        curTheta = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+
+        /*
+         * optional filter for imu + encoder heading
+        curTheta = .9 * curTheta + .1 * encoderTheta;
+         */
+
+        // Update the robot's position in the global frame
+        curPoseX += (vx * Math.cos(curTheta) - vy * Math.sin(curTheta)) * deltaTime;
+        curPoseY += (vx * Math.sin(curTheta) + vy * Math.cos(curTheta)) * deltaTime;
     }
 
-    public static double remap(double value, double low, double high, double newLow, double newHigh) {
-        return newLow + (newHigh - newLow) * ((value - low) / (high - low));
+    private double normalizeAngle(double angle) {
+        while (angle > Math.PI) {
+            angle -= 2 * Math.PI;
+        }
+        while (angle < -Math.PI) {
+            angle += 2 * Math.PI;
+        }
+        return angle;
     }
-
 
     @Override
     public abstract void runOpMode() throws InterruptedException;

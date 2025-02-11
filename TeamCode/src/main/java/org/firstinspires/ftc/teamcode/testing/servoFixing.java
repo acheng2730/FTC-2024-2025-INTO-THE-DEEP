@@ -15,15 +15,15 @@ public class servoFixing extends BaseLinearOpMode {
 
         waitForStart();
 
-        while(opModeIsActive()) {
-            if(gamepad1.left_bumper) {
-                servoLeft.setPosition(servoLeft.getPosition()+.005);
-                servoRight.setPosition(servoRight.getPosition()+.005);
+        while (opModeIsActive()) {
+            if (gamepad1.left_bumper) {
+                servoLeft.setPosition(servoLeft.getPosition() + .005);
+                servoRight.setPosition(servoRight.getPosition() + .005);
                 sleep(10);
             }
-            if(gamepad1.right_bumper) {
-                servoLeft.setPosition(servoLeft.getPosition()-.005);
-                servoRight.setPosition(servoRight.getPosition()-.005);
+            if (gamepad1.right_bumper) {
+                servoLeft.setPosition(servoLeft.getPosition() - .005);
+                servoRight.setPosition(servoRight.getPosition() - .005);
                 sleep(10);
             }
         }
