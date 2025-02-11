@@ -26,6 +26,10 @@ public class servoFixing extends BaseLinearOpMode {
                 servoRight.setPosition(servoRight.getPosition() - .005);
                 sleep(10);
             }
+
+            telemetry.addData("left: ", servoLeft.getPosition());
+            telemetry.addData("right: ", servoRight.getPosition());
+            telemetry.update();
         }
 
     }
