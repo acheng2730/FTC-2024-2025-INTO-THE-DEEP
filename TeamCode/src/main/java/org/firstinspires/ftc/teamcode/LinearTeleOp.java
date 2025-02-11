@@ -30,7 +30,7 @@ public class LinearTeleOp extends BaseLinearOpMode {
             int viperEncoderPos = -viper_slide.getCurrentPosition();
 
 
-            telemetry.addData("Position: ", curPoseX + " , " + curPoseY + " , " + curTheta);
+            telemetry.addData("Position: ", getRobotX() + " , " + getRobotY() + " , " + getRobotTheta());
             telemetry.addData("topLeftPos: ", topLeftEncoderPos);
             telemetry.addData("topRightPos: ", topRightEncoderPos);
             telemetry.addData("backLeftPos: ", backLeftEncoderPos);
