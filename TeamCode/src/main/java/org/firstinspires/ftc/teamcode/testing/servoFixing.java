@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.testing;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.BaseLinearOpMode;
 
@@ -9,9 +10,13 @@ public class servoFixing extends BaseLinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        initHardware();
-        servoLeft.setPosition(0);
-        servoRight.setPosition(0);
+        //initHardware();
+        servoLeft = hardwareMap.get(Servo.class, "servoLeft");
+        servoRight = hardwareMap.get(Servo.class, "servoRight");
+        servoRight.setDirection(Servo.Direction.REVERSE);
+
+        servoLeft.setPosition(0.5);
+        servoRight.setPosition(0.5);
 
         waitForStart();
 
