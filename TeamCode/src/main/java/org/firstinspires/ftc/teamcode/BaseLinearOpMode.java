@@ -26,8 +26,8 @@ public abstract class BaseLinearOpMode extends LinearOpMode {
     ElapsedTime driveTime = new ElapsedTime();
     double prevTime = 0;
 
-    Servo servoLeft;
-    Servo servoRight;
+    public Servo servoLeft;
+    public Servo servoRight;
     Servo wrist;
 
     public void initHardware() throws InterruptedException {
@@ -47,7 +47,7 @@ public abstract class BaseLinearOpMode extends LinearOpMode {
 
         servoLeft = hardwareMap.get(Servo.class, "servoLeft");
         servoRight = hardwareMap.get(Servo.class, "servoRight");
-        servoLeft.setDirection(Servo.Direction.REVERSE);
+        servoRight.setDirection(Servo.Direction.REVERSE);
         wrist = hardwareMap.get(Servo.class, "wrist");
 
         topLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -58,12 +58,14 @@ public abstract class BaseLinearOpMode extends LinearOpMode {
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         viper_slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        scoop.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         topLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         topRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         viper_slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        scoop.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         imu = hardwareMap.get(IMU.class, "imu");
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));

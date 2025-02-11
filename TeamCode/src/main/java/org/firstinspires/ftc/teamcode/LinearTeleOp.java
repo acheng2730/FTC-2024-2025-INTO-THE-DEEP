@@ -5,10 +5,12 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 // A more accurate implementation of Mecanum drive, using target angle/power as inputs instead of direct joystick values
 @TeleOp(name = "LinearTeleOp")
 public class LinearTeleOp extends BaseLinearOpMode {
-
     @Override
     public void runOpMode() throws InterruptedException {
         initHardware();
+        servoRight.setPosition(1);
+        servoLeft.setPosition(0.45);
+        wrist.setPosition(0);
 
         PIDController viper = new PIDController(.004,0.004,0);
         int viperSetpoint = 0;
@@ -16,6 +18,7 @@ public class LinearTeleOp extends BaseLinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
+        int scoopPos = scoop.getCurrentPosition();
         waitForStart();
 
         while (opModeIsActive()) {
@@ -24,7 +27,7 @@ public class LinearTeleOp extends BaseLinearOpMode {
             int backLeftEncoderPos = -backLeft.getCurrentPosition();
             int backRightEncoderPos = backRight.getCurrentPosition();
             int viperEncoderPos = -viper_slide.getCurrentPosition();
-            int scoopPos = scoop.getCurrentPosition();
+
 
             //updatePosition();
             getRobotTheta();
@@ -38,6 +41,10 @@ public class LinearTeleOp extends BaseLinearOpMode {
             telemetry.addData("backRightPos: ", backRightEncoderPos);
             telemetry.addData("viperPos: ", viperEncoderPos);
             telemetry.addData("viper setpoint: ", viperSetpoint);
+            telemetry.addData("scoop pos: ", scoop.getCurrentPosition());
+            telemetry.addData("servoLeft: ", servoLeft.getPosition());
+            telemetry.addData("servoRight: ", servoRight.getPosition());
+            telemetry.addData("wrist: ", wrist.getPosition());
 
             telemetry.update();
 
@@ -86,23 +93,33 @@ public class LinearTeleOp extends BaseLinearOpMode {
             viperPower = viper.calculate(viperSetpoint, viperEncoderPos);
 
             if (gamepad1.a) {
-                servoLeft.setPosition(servoLeft.getPosition()+10);
-                servoRight.setPosition(servoRight.getPosition()+10);
+                servoLeft.setPosition(servoLeft.getPosition()+.02);
+                servoRight.setPosition(servoRight.getPosition()+.02);
+                sleep(10);
+            }
+            if (gamepad1.b) {
+                servoLeft.setPosition(servoLeft.getPosition()-.02);
+                servoRight.setPosition(servoRight.getPosition()-.02);
+                sleep(10);
+            }
+
+            if (gamepad1.x) {
+                wrist.setPosition(wrist.getPosition()+.02);
+                sleep(10);
+            }
+            if (gamepad1.y) {
+                wrist.setPosition(wrist.getPosition()-.02);
+                sleep(10);
             }
 
             double scoopPower = gamepad1.right_trigger-gamepad1.left_trigger;
-            if ((scoop.getCurrentPosition() >= scoopPos && power > 0) ||
-                    (scoop.getCurrentPosition() <= scoopPos-225 && power < 0)) {
-                power = 0; // Stop the motor if it tries to move beyond the limits
-            }
-
 
             topLeft.setPower(topLeftPow);
             backLeft.setPower(backLeftPow);
             topRight.setPower(topRightPow);
             backRight.setPower(backRightPow);
             viper_slide.setPower(viperPower);
-            scoop.setPower(.35*power);
+            scoop.setPower(.35*scoopPower);
         }
     }
 }
