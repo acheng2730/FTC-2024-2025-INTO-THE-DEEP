@@ -17,23 +17,28 @@ import java.util.List;
 // A working knowledge of Java is helpful here:
 // abstract classes and inheritance
 public abstract class BaseLinearOpMode extends LinearOpMode {
+    private static final double WHEEL_RADIUS = 52 / 25.4; // Wheel radius in inches
+    private static final double LX = 8.125; // Half of the wheelbase along the x-axis in inches
+    private static final double LY = 8.25; // Half of the wheelbase along the y-axis in inches
     public IMU imu;
     public Servo servoLeft;
     public Servo servoRight;
     DcMotorEx topLeft, topRight, backLeft, backRight;
     DcMotorEx viper_slide;
     DcMotorEx scoop;
-    double conversionFactor = 92.4; // NeveRest 40 motor ticks/inch
+
+    /* REV-41-1291 motor: 28 ticks/rev
+     * Circumference = 104mm * pi = 12.86 in
+     * 28 ticks/rev / 12.86 in = 2.17675 ticks/in
+     */
+    double conversionFactor = 2.17675;
+
     double curPoseY = 0, curPoseX = 0;
-    double curTheta = 0; double encoderTheta = 0; // Current position on field in inches
+    double curTheta = 0;
+    double encoderTheta = 0; // Current position on field in inches
     ElapsedTime driveTime = new ElapsedTime();
     double prevTime = 0;
-    Servo wrist;
-
-    //TODO FIX THESE NUMBERS
-    private static final double WHEEL_RADIUS = 2.0; // Wheel radius in inches
-    private static final double LX = 7.0; // Half of the wheelbase along the x-axis in inches
-    private static final double LY = 7.0; // Half of the wheelbase along the y-axis in inches
+    Servo bucket;
 
     public void initHardware() throws InterruptedException {
         // Hubs
@@ -53,7 +58,7 @@ public abstract class BaseLinearOpMode extends LinearOpMode {
         servoLeft = hardwareMap.get(Servo.class, "servoLeft");
         servoRight = hardwareMap.get(Servo.class, "servoRight");
         servoRight.setDirection(Servo.Direction.REVERSE);
-        wrist = hardwareMap.get(Servo.class, "wrist");
+        bucket = hardwareMap.get(Servo.class, "bucket");
 
         topLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE); // For mecanum drive
@@ -106,14 +111,16 @@ public abstract class BaseLinearOpMode extends LinearOpMode {
         double vy = (WHEEL_RADIUS / 4) * (-w1 + w2 + w3 - w4);
         double omega = (WHEEL_RADIUS / (4 * (LX + LY))) * (-w1 + w2 - w3 + w4);
 
-        encoderTheta = omega*deltaTime;
+        encoderTheta = omega * deltaTime;
         encoderTheta = normalizeAngle(encoderTheta);
 
         // Update the robot's heading using the IMU
         curTheta = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        curTheta = remap(curTheta, -Math.PI, Math.PI, 0, 2* Math.PI);
 
         /*
          * optional filter for imu + encoder heading
+         * not going to use
         curTheta = .9 * curTheta + .1 * encoderTheta;
          */
 
@@ -131,6 +138,11 @@ public abstract class BaseLinearOpMode extends LinearOpMode {
         }
         return angle;
     }
+
+    private double remap(double a, double b, double c, double d, double e) {
+        return d + (e - d) * ((a - b) / (c - b));
+    }
+
 
     @Override
     public abstract void runOpMode() throws InterruptedException;
