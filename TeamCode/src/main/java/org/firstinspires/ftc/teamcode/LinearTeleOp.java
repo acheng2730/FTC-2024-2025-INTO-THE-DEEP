@@ -8,9 +8,9 @@ public class LinearTeleOp extends BaseLinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         initHardware();
-        servoRight.setPosition(1);
-        servoLeft.setPosition(0.45);
-        wrist.setPosition(0);
+        servoRight.setPosition(0.5);
+        servoLeft.setPosition(0.5);
+        bucket.setPosition(0);
 
         PIDController viper = new PIDController(.004, 0.004, 0);
         int viperSetpoint = 0;
@@ -30,7 +30,7 @@ public class LinearTeleOp extends BaseLinearOpMode {
             int viperEncoderPos = -viper_slide.getCurrentPosition();
 
 
-            telemetry.addData("Position: ", getRobotX() + " , " + getRobotY() + " , " + getRobotTheta());
+            telemetry.addData("Position: ", getRobotX() + " , " + getRobotY() + " , " + 180 * getRobotTheta() / (Math.PI));
             telemetry.addData("topLeftPos: ", topLeftEncoderPos);
             telemetry.addData("topRightPos: ", topRightEncoderPos);
             telemetry.addData("backLeftPos: ", backLeftEncoderPos);
@@ -40,7 +40,7 @@ public class LinearTeleOp extends BaseLinearOpMode {
             telemetry.addData("scoop pos: ", scoop.getCurrentPosition());
             telemetry.addData("servoLeft: ", servoLeft.getPosition());
             telemetry.addData("servoRight: ", servoRight.getPosition());
-            telemetry.addData("wrist: ", wrist.getPosition());
+            telemetry.addData("bucket: ", bucket.getPosition());
 
             telemetry.update();
 
@@ -100,11 +100,11 @@ public class LinearTeleOp extends BaseLinearOpMode {
             }
 
             if (gamepad1.x) {
-                wrist.setPosition(wrist.getPosition() + .02);
+                bucket.setPosition(bucket.getPosition() + .02);
                 sleep(10);
             }
             if (gamepad1.y) {
-                wrist.setPosition(wrist.getPosition() - .02);
+                bucket.setPosition(bucket.getPosition() - .02);
                 sleep(10);
             }
 
