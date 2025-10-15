@@ -1,5 +1,5 @@
 https://www.youtube.com/watch?v=CdcpNZzekb0
-Tech setup: 0:00 - 5:45 (ignore the rest)
+Tech setup: 0:00 - 5:50 (ignore the rest)
 
 https://ftc-tech-toolbox.vercel.app/docs/Getting%20Started/Introduction
 Read through: Creating an OpMode, Motors and Encoders, Servos
